@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest  --runInBand",
     "build": "tsc",
-    "start": "npm run build && node dist/server.js",
-    "start:dev": "nodemon src/server.ts"
+    "start": "node ./dist/server.js",
+    "start:dev": "nodemon ./src/server.ts"
   },
   "keywords": [],
   "author": "",
