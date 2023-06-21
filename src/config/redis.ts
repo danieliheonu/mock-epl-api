@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 
-const host = process.env.REDIS_HOST || "redis";
-const port = Number(process.env.REDIS_PORT) || 6379;
+const host = process.env.REDIS_HOST;
+const port = Number(process.env.REDIS_PORT);
 const options = {
 	url: `redis://${host}:${port}`,
 };
