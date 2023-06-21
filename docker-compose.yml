@@ -10,8 +10,9 @@ services:
       - APP_NAME=${APP_NAME}
       - JWT_SECRET=${JWT_SECRET}
       - MONGO_URI=${MONGO_URI}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_TLS=${REDIS_TLS}
       - NODE_ENV=${NODE_ENV}
       - BASE_URL=${BASE_URL}
 
