@@ -1,13 +1,11 @@
 version: '3'
 services:
   node-app:
+    build: .
     environment:
       - NODE_ENV=${NODE_ENV}
       - BASE_URL=${BASE_URL}
-    command: npm start
 
   redis:
     image: redis/redis-stack-server:latest
     container_name: redis-stack-server
-    ports:
-      - 6379:6379

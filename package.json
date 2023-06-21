@@ -4,10 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "jest  --runInBand",
+    "test": "jest",
     "build": "tsc",
-    "start": "node ./dist/server.js",
-    "start:dev": "nodemon ./src/server.ts"
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts"
   },
   "keywords": [],
   "author": "",

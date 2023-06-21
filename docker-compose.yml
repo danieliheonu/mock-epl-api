@@ -3,8 +3,6 @@ services:
   node-app:
     build:
       context: .
-      args:
-        - NODE_ENV=${NODE_ENV}
     container_name: node-app
     ports:
       - 5000:5000
@@ -16,4 +14,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
 
-      
+  redis:
+    ports:
+      - 6379:6379

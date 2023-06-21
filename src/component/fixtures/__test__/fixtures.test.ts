@@ -1,33 +1,14 @@
 import app from "../../../app";
 import request from "supertest";
-import User from "../../users/users.model";
-import jwt from "jsonwebtoken";
 import Fixture from "../fixtures.model";
 import Team from "../../teams/teams.model";
+import { authenticateAdmin, authenticateUser, addTeams } from "../../../tests/jest.setup";
 
 describe("GET /fixtures", () => {
 	test("admin can retrieve all fixtures", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		await Fixture.create({
 			homeTeamId: team1._id,
@@ -42,27 +23,9 @@ describe("GET /fixtures", () => {
 		expect(res.body.data.length).toEqual(1);
 	});
 	test("user can't retrieve fixtures", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		await Fixture.create({
 			homeTeamId: team1._id,
@@ -80,27 +43,9 @@ describe("GET /fixtures", () => {
 
 describe("POST /fixtures", () => {
 	test("admin can create a fixture", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const res = await request(app)
 			.post("/api/v1/fixtures")
@@ -115,27 +60,9 @@ describe("POST /fixtures", () => {
 	});
 
 	test("user can't create a fixture", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const res = await request(app)
 			.post("/api/v1/fixtures")
@@ -150,21 +77,9 @@ describe("POST /fixtures", () => {
 	});
 
 	test("admin can't create a fixture without homeTeamId", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const team1 = await Team.create({
-			name: "team1",
-			stadium: "stadium1",
-		});
+		const [team1, _, __] = await addTeams();
 
 		const res = await request(app)
 			.post("/api/v1/fixtures")
@@ -178,21 +93,9 @@ describe("POST /fixtures", () => {
 	});
 
 	test("admin can't create a fixture without awayTeamId", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const team1 = await Team.create({
-			name: "team1",
-			stadium: "stadium1",
-		});
+		const [team1, _, __] = await addTeams();
 
 		const res = await request(app)
 			.post("/api/v1/fixtures")
@@ -206,27 +109,9 @@ describe("POST /fixtures", () => {
 	});
 
 	test("admin can't create a fixture that already exists", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		await Fixture.create({
 			homeTeamId: team1._id,
@@ -246,21 +131,9 @@ describe("POST /fixtures", () => {
 	});
 
 	test("admin can't create a fixture with the same homeTeamId and awayTeamId", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const team1 = await Team.create({
-			name: "team1",
-			stadium: "stadium1",
-		});
+		const [team1, _, __] = await addTeams();
 
 		const res = await request(app)
 			.post("/api/v1/fixtures")
@@ -277,27 +150,9 @@ describe("POST /fixtures", () => {
 
 describe("GET /fixtures/:id", () => {
 	test("admin can retrieve a fixture", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -313,27 +168,9 @@ describe("GET /fixtures/:id", () => {
 	});
 
 	test("user can't retrieve a fixture", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -351,31 +188,9 @@ describe("GET /fixtures/:id", () => {
 
 describe("PATCH /fixtures/:id", () => {
 	test("admin can update a fixture", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2, team3] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-			{
-				name: "team3",
-				stadium: "stadium3",
-			},
-		]);
+		const [team1, team2, team3] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -394,31 +209,9 @@ describe("PATCH /fixtures/:id", () => {
 	});
 
 	test("user can't update a fixture", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2, team3] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-			{
-				name: "team3",
-				stadium: "stadium3",
-			},
-		]);
+		const [team1, team2, team3] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -437,31 +230,9 @@ describe("PATCH /fixtures/:id", () => {
 	});
 
 	test("admin can't update a fixture to a fixture that already exists", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2, team3] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-			{
-				name: "team3",
-				stadium: "stadium3",
-			},
-		]);
+		const [team1, team2, team3] = await addTeams();
 
 		const [fixture, _] = await Fixture.insertMany([
 			{
@@ -486,27 +257,9 @@ describe("PATCH /fixtures/:id", () => {
 	});
 
 	test("admin can't update a fixture with the same home and away team", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -527,27 +280,9 @@ describe("PATCH /fixtures/:id", () => {
 
 describe("DELETE /fixtures/:id", () => {
 	test("admin can delete a fixture", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -563,27 +298,9 @@ describe("DELETE /fixtures/:id", () => {
 	});
 
 	test("user can't delete a fixture", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -601,27 +318,9 @@ describe("DELETE /fixtures/:id", () => {
 
 describe("PUT /fixtures/:id/generate-link", () => {
 	test("admin can generate link for fixture", async () => {
-		const user = await User.create({
-			email: "admin@gmail.com",
-			password: "password",
-			isAdmin: true,
-		});
+		const accessToken = await authenticateAdmin();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -637,27 +336,9 @@ describe("PUT /fixtures/:id/generate-link", () => {
 	});
 
 	test("user can't generate link for fixture", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-		]);
+		const [team1, team2, _] = await addTeams();
 
 		const fixture = await Fixture.create({
 			homeTeamId: team1._id,
@@ -675,31 +356,9 @@ describe("PUT /fixtures/:id/generate-link", () => {
 
 describe("GET /fixtures/pending", () => {
 	test("user can retrieve pending fixtures", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2, team3] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-			{
-				name: "team3",
-				stadium: "stadium3",
-			},
-		]);
+		const [team1, team2, team3] = await addTeams();
 
 		await Fixture.insertMany([
 			{
@@ -728,31 +387,9 @@ describe("GET /fixtures/pending", () => {
 
 describe("GET /fixtures/completed", () => {
 	test("user can retrieve completed fixtures", async () => {
-		const user = await User.create({
-			email: "user@gmail.com",
-			password: "password",
-			isAdmin: false,
-		});
+		const accessToken = await authenticateUser();
 
-		const accessToken = jwt.sign(
-			{ _id: user._id, admin: user.isAdmin },
-			process.env.JWT_SECRET!
-		);
-
-		const [team1, team2, team3] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-			{
-				name: "team3",
-				stadium: "stadium3",
-			},
-		]);
+		const [team1, team2, team3] = await addTeams();
 
 		await Fixture.insertMany([
 			{
@@ -781,20 +418,7 @@ describe("GET /fixtures/completed", () => {
 
 describe("GET /search", () => {
 	test("user can robustly search for team", async () => {
-		await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-			{
-				name: "team3",
-				stadium: "stadium3",
-			},
-		]);
+		await addTeams();
 
 		const res = await request(app).get("/api/v1/search?team=te");
 
@@ -803,20 +427,7 @@ describe("GET /search", () => {
 	});
 
 	test("users can robustly search for fixtures", async () => {
-		const [team1, team2, team3] = await Team.insertMany([
-			{
-				name: "team1",
-				stadium: "stadium1",
-			},
-			{
-				name: "team2",
-				stadium: "stadium2",
-			},
-			{
-				name: "team3",
-				stadium: "stadium3",
-			},
-		]);
+		const [team1, team2, team3] = await addTeams();
 
 		await Fixture.insertMany([
 			{
