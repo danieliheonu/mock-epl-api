@@ -1,0 +1,15 @@
+version: '3'
+services:
+  node-app:
+    volumes:
+      - ./:/app
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - BASE_URL=${BASE_URL}
+    command: npm run start:dev
+
+  redis:
+    image: redis/redis-stack:latest
+    container_name: redis-stack
+    ports:
+      - 6379:6379

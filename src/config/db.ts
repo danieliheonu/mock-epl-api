@@ -1,5 +1,4 @@
 import mongoose, { ConnectOptions } from "mongoose";
-import logger from "../utils/loggerHelper";
 
 const db = async () => {
 	try {
@@ -10,9 +9,9 @@ const db = async () => {
 				useUnifiedTopology: true,
 			} as ConnectOptions
 		),
-			logger.info("Connected to database");
+			console.log("Connected to database");
 	} catch (err) {
-		logger.error(err);
+		console.log(err);
 	}
 };
 

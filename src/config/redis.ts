@@ -1,11 +1,16 @@
 import { createClient } from "redis";
-import logger from "../utils/loggerHelper";
 
-export const client = createClient();
+const host = process.env.REDIS_HOST || "redis";
+const port = Number(process.env.REDIS_PORT) || 6379;
+const options = {
+	url: `redis://${host}:${port}`,
+};
+
+export const client = createClient(options);
 const redis = async () => {
-	client.on("error", (err) => logger.error("Redis client error", err));
+	client.on("error", (err) => console.log("Redis client error", err));
 	await client.connect();
-	logger.info("Redis client connected");
+	console.log("Redis client connected");
 };
 
 export default redis;
