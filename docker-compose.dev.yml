@@ -2,11 +2,21 @@ version: '3'
 services:
   node-app:
     build:
+      context: .
       target: development
+    container_name: node-app
     volumes:
       - ./:/app
       - /app/node_modules
+    ports:
+      - 5000:5000
     environment:
+      - PORT=${PORT}
+      - APP_NAME=${APP_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - MONGO_URI=${MONGO_URI}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - NODE_ENV=${NODE_ENV}
       - BASE_URL=${BASE_URL}
     command: npm run dev
@@ -14,3 +24,5 @@ services:
   redis:
     image: redis/redis-stack:latest
     container_name: redis-stack
+    ports:
+      - 6379:6379
