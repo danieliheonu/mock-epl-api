@@ -2,6 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import Team from "./teams.model";
 import * as teamService from "./teams.service";
 import { client } from "../../config/redis";
+import { BadRequestException } from "../../utils/serviceException";
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -62,6 +63,9 @@ export const findTeam = async (req: Request, res: Response, next: NextFunction) 
 
 export const updateTeam = async (req: Request, res: Response, next: NextFunction) => {
 	try {
+		const nameExists = await Team.exists({ name: req.body.name });
+		if (nameExists) throw new BadRequestException("team name already exists");
+
 		const team = await Team.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
 		return res.status(200).json({
